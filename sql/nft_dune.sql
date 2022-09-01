@@ -255,9 +255,9 @@ SELECT (CASE
        WHEN nft_contract_address = '\x94638cbf3c54c1f956a5f05cbc0f9afb6822020d' THEN 'inBetweeners'
        WHEN nft_contract_address = '\x9372b371196751dd2f603729ae8d8014bbeb07f6' THEN 'Bored Bunny'
        WHEN nft_contract_address = '\x4e1f41613c9084fdb9e34e11fae9412427480e56' THEN 'Terraforms'
-       ELSE CONCAT('0', SUBSTRING(nft_contract_address::text, 2))
-END) AS name, 
-buyer, seller, usd_amount, nft_contract_address AS contract
+       ELSE 'something_else'
+END) AS collection, 
+buyer, seller, usd_amount, nft_contract_address AS nft_contract, category, platform, block_time
 FROM nft.trades
 WHERE original_currency in ('ETH','WETH')
 AND buyer != seller
@@ -265,9 +265,15 @@ AND trade_type = 'Single Item Trade'
 AND nft_contract_address NOT IN ('\x495f947276749ce646f68ac8c248420045cb7b5e', -- OpenSea Shared Storefront
                                 '\xc99f70bfd82fb7c8f8191fdfbfb735606b15e5c5') -- WyvernAtomicizer
 AND tx_hash != '\x92488a00dfa0746c300c66a716e6cc11ba9c0f9d40d8c58e792cc7fcebf432d0'
-AND tx_hash NOT IN (SELECT txs FROM os_remove)
+AND block_time > now() - interval '1 month'
 )
 
-SELECT *
-FROM nfts
-limit 100
+-- nft_with_labels as (
+-- SELECT collection, labels.get(buyer) as buyer_label, labels.get(seller) as seller_label
+-- FROM nfts
+-- )
+
+-- SELECT collection, buyer, labels.get(buyer) as bueyr_label, seller, labels.get(seller) as seller_label, usd_amount
+select * from nfts
+limit 200000
+
